@@ -1,0 +1,20 @@
+﻿<Page x:Class="Wungle.ClimberScreen"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Wungle"
+      mc:Ignorable="d" 
+      d:DesignHeight="1080" d:DesignWidth="1920"
+      Title="ClimberScreen">
+
+    <Grid>
+        <Grid.Background>
+            <ImageBrush ImageSource="background_wall.png" Stretch="UniformToFill"/>
+        </Grid.Background>
+        <Image x:Name="imageHomeIcons" HorizontalAlignment="Left" Height="1080" Margin="0" VerticalAlignment="Top" Width="1920" Source="wall_climber.png"/>
+        <ListBox x:Name="lBClimbers" HorizontalAlignment="Left" Height="667" Margin="210,215,0,0" VerticalAlignment="Top" Width="640"/>
+        <Button x:Name="btnBack" Content="Button" HorizontalAlignment="Left" Margin="1501,906,0,0" VerticalAlignment="Top" Width="308" Height="114" Opacity="0" Click="BtnBack_Click"/>
+        <Button x:Name="btnAddClimber" Content="Button" HorizontalAlignment="Left" Margin="134,896,0,0" VerticalAlignment="Top" Width="906" Height="120" Opacity="0" Click="BtnAddClimber_Click"/>
+    </Grid>
+</Page>
