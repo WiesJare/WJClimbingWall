@@ -18,9 +18,9 @@ namespace WarriorJungleClimbing
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Process fadeCandyListener = new Process();
-            fadeCandyListener.StartInfo.FileName = "..\\..\\..\\..\\..\\fadecandy-package-02\\bin\\fcserver.exe";
-            fadeCandyListener.Start();
+            //Process fadeCandyListener = new Process();
+            //fadeCandyListener.StartInfo.FileName = "..\\..\\..\\..\\..\\fadecandy-package-02\\bin\\fcserver.exe";
+            //fadeCandyListener.Start();
             Application.Run(new WallSelection());
         }
     }

@@ -6,12 +6,15 @@ using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows.Forms;
+
 
 
 namespace WarriorJungleClimbing
@@ -24,8 +27,15 @@ namespace WarriorJungleClimbing
             InitializeComponent();
             this.Location = new Point(Screen.AllScreens[Screen.AllScreens.GetUpperBound(0) / 2].Bounds.X,
                                       Screen.AllScreens[Screen.AllScreens.GetUpperBound(0) / 2].Bounds.Y);
+            //this.Location = new Point(Screen.AllScreens[Screen.AllScreens.GetLowerBound(0) / 2].Bounds.X,
+            //                          Screen.AllScreens[Screen.AllScreens.GetLowerBound(0) / 2].Bounds.Y);
             this.StartPosition = FormStartPosition.Manual;
         }
+
+
+        const int numLeds = 49;
+        // The serial port for the ESP32 board
+        static SerialPort serialPort;
         /***Snake Game***/
         private List<Circle> Snake = new List<Circle>();
         private Circle food = new Circle();
@@ -37,7 +47,7 @@ namespace WarriorJungleClimbing
         public static ClimbWall LightWall = new ClimbWall();
         public List<Climber> climberList = new List<Climber>();
         public List<Route> routeList = new List<Route>();
-        OpcClient lightControl = new OpcClient();
+        serialSend lightControl = new serialSend();
         List<Pixel> wallState = new List<Pixel>();
         List<int> regularHolds = new List<int>();
         List<int> startHolds = new List<int>();
@@ -92,6 +102,35 @@ namespace WarriorJungleClimbing
         /***********************First Load/ Import all routes and climbers**************************/
         private void WallSelection_Load(object sender, EventArgs e)
         {
+            serialPort = new SerialPort("COM6", 512000);
+            serialPort.Open();
+            serialPort.WriteTimeout = 10;
+            byte light;
+            byte red = 255;
+            byte green = 255;
+            byte blue = 255;
+            /*for (int i = 0; i < 64; i++)
+            {
+                light = (byte)i;
+                //serialPort.WriteLine();
+                byte[] buf = new byte[4];
+                buf[0] = light;
+                buf[1] = red;
+                buf[2] = green;
+                buf[3] = blue;
+                serialPort.Write(buf,0,4);
+            }
+            
+            serialPort.WriteLine("65,0,255,0,");
+            serialPort.WriteLine("130,0,255,0,");
+            serialPort.WriteLine("195,0,255,0,");
+            serialPort.WriteLine("260,0,255,0,");
+            serialPort.WriteLine("325,0,255,0,");
+            serialPort.WriteLine("390,0,255,0,");
+            serialPort.WriteLine("455,0,255,0,");
+            //serialPort.Close();
+            */
+
             buildClimbers();
             buildRoutes();
             showHome();
@@ -299,7 +338,7 @@ namespace WarriorJungleClimbing
                             wallState.Add(new Pixel(15, 15, 15));
                         }
                     }
-                    lightControl.WriteFrame(wallState);
+                    //lightControl.WriteFrame(wallState);
                     wallState.Clear();
                     Thread.Sleep(50);
                 }
@@ -314,9 +353,9 @@ namespace WarriorJungleClimbing
                     else
                         wallState.Add(new Pixel(0, 0, 0));
                 }
-                lightControl.WriteFrame(wallState);
-                lightControl.WriteFrame(wallState);
-                lightControl.WriteFrame(wallState);
+                //lightControl.WriteFrame(wallState);
+                OpcClient test = new OpcClient();
+                test.WriteFrame(wallState);
             });
             thread.Start();
 
@@ -348,7 +387,7 @@ namespace WarriorJungleClimbing
                         wallState.Add(new Pixel(15, 15, 15));
                     }
                 }
-                lightControl.WriteFrame(wallState);
+                //lightControl.WriteFrame(wallState);
                 wallState.Clear();
                 Thread.Sleep(50);
             }
@@ -363,9 +402,8 @@ namespace WarriorJungleClimbing
                 else
                     wallState.Add(new Pixel(0, 0, 0));
             }
-            lightControl.WriteFrame(wallState);
-            lightControl.WriteFrame(wallState);
-            lightControl.WriteFrame(wallState);
+            //lightControl.WriteFrame(wallState);
+
 
         }
 
@@ -459,9 +497,7 @@ namespace WarriorJungleClimbing
                     wallState.Add(new Pixel(0, 0, 0));
                 }
             }
-            lightControl.WriteFrame(wallState);
-            lightControl.WriteFrame(wallState);
-            lightControl.WriteFrame(wallState);
+            //lightControl.WriteFrame(wallState);
             wallState.Clear();
             startHolds.Clear();
             regularHolds.Clear();
@@ -1202,14 +1238,19 @@ namespace WarriorJungleClimbing
 
         private void newHoldHover(object sender, System.EventArgs e)
         {
-            System.EventArgs me = (System.EventArgs)e;
+            //System.EventArgs me = (System.EventArgs)e;
             Button button = (Button)sender;
             int x, y, sIndex, eIndex;
             sIndex = button.Name.IndexOf(',');
             eIndex = button.Name.IndexOf(',', sIndex + 1);
             x = Int32.Parse(button.Name.Substring(sIndex + 1, eIndex - (sIndex + 1)));
             y = Int32.Parse(button.Name.Substring(eIndex + 1, button.Name.Length - (eIndex + 1)));
-            Button btn = addRoutePanel.Controls.Find("btn," + x + "," + y, true).First() as Button;
+            //Button btn = addRoutePanel.Controls.Find("btn," + x + "," + y, true).First() as Button;
+
+            for (int i = 0; i < OpcConstants.StrandLength; i++)
+            {
+                sendLightToSerial(i, 0, 0, 0); //Clear all lights
+            }
 
             for (int i = 0; i < 15; i++)
             {
@@ -1217,49 +1258,44 @@ namespace WarriorJungleClimbing
                 {
                     if (newRoute[i, j] == '1')
                     {
-                        regularHolds.Add(lightCrosswalk[j, i]);
+                        sendLightToSerial(lightCrosswalk[j,i], 0, 255, 0); //If it's a regular hold
                     }
                     else if (newRoute[i, j] == '2')
                     {
-                        startHolds.Add(lightCrosswalk[j, i]);
+                        sendLightToSerial(lightCrosswalk[j,i], 255, 0, 0); //If it's a start hold
                     }
                     else if (newRoute[i, j] == '3')
                     {
-                        aboveHolds.Add(lightCrosswalk[j, i]);
+                        sendLightToSerial(lightCrosswalk[j,i], 255, 255, 255); //If it's a foot only
                     }
                 }
             }
-            for (int i = 0; i < OpcConstants.StrandLength; i++)
-            {
-                if (regularHolds.Contains(i))
-                {
-                    wallState.Add(new Pixel(0, 255, 0));
-                }
-                else if (startHolds.Contains(i))
-                {
-                    wallState.Add(new Pixel(255, 0, 0));
-                }
-                else if (aboveHolds.Contains(i))
-                {
-                    wallState.Add(new Pixel(255, 255, 255));
-                }
-                else if (i == lightCrosswalk[y, x])
-                {
-                    wallState.Add(new Pixel(255, 0, 255)); //Hovered Hold
-                }
-                else
-                {
-                    wallState.Add(new Pixel(0, 0, 0));
-                }
-            }
-            lightControl.WriteFrame(wallState);
-            lightControl.WriteFrame(wallState);
-            lightControl.WriteFrame(wallState);
+            sendLightToSerial(lightCrosswalk[y,x], 255, 0, 255); //Hold being hovered
+
             wallState.Clear();
-            startHolds.Clear();
-            regularHolds.Clear();
-            aboveHolds.Clear();
-            dualHolds.Clear();
+        }
+
+        private void sendLightToSerial(int light, int red, int green, int blue)
+        {
+            byte[] buf = new byte[5];
+            byte[] lightBuf = new byte[2];
+            ushort checksum = 0;
+            lightBuf = BitConverter.GetBytes(light);
+
+            buf[0] = (byte)lightBuf[0];
+            buf[1] = (byte)lightBuf[1];
+            buf[2] = (byte)red;
+            buf[3] = (byte)green;
+            buf[4] = (byte)blue;
+
+            checksum = 0;
+            foreach (byte b in buf)
+            {
+                checksum += b;
+            }
+
+            serialPort.Write(buf, 0, buf.Length);
+            serialPort.Write(BitConverter.GetBytes(checksum), 0, 2);
         }
 
         private void lBRouteSelectionClick(object sender, EventArgs e)
@@ -1395,9 +1431,7 @@ namespace WarriorJungleClimbing
             }
             if (wallState.Count > 0)
             {
-                lightControl.WriteFrame(wallState);
-                lightControl.WriteFrame(wallState);
-                lightControl.WriteFrame(wallState);
+                //lightControl.WriteFrame(wallState);
             }
         }
 
@@ -1497,7 +1531,7 @@ namespace WarriorJungleClimbing
         {
             //init frame
 
-            lightControl.SetDitheringAndInterpolation(true);
+            //lightControl.SetDitheringAndInterpolation(true);
             var pixels = new Queue<Pixel>();
             List<int> ring1 = new List<int> { 423 };
             List<int> ring2 = new List<int> { 399, 422, 421, 397, 426, 425, 398, 424 };
@@ -1573,7 +1607,7 @@ namespace WarriorJungleClimbing
                             pixel = Pixel.PixelFromHsv(hue);
                         pixels.Enqueue(pixel);
                     }
-                    lightControl.WriteFrame(pixels.ToList());
+                    //lightControl.WriteFrame(pixels.ToList());
                     //Console.WriteLine("In light thread");
                     Thread.Sleep(135);
                 }
@@ -1806,7 +1840,7 @@ namespace WarriorJungleClimbing
                     else
                         wallState.Add(new Pixel(0, 0, 0));
                 }
-                lightControl.WriteFrame(wallState);
+                //lightControl.WriteFrame(wallState);
                 wallState.Clear();
             }
             else
@@ -2091,9 +2125,7 @@ namespace WarriorJungleClimbing
                     }
                 }
             }
-            lightControl.WriteFrame(wallState);
-            lightControl.WriteFrame(wallState);
-            lightControl.WriteFrame(wallState);
+            //lightControl.WriteFrame(wallState);
         }
 
         public void findStartHolds(int diff)
@@ -2483,6 +2515,21 @@ namespace WarriorJungleClimbing
                 attempts++;
             }
         }
+        public class serialSend
+        {
+            public void WriteFrame(List<Pixel> pixels, int channel = 0)
+            {
+                for (int i = 0; i < pixels.Count; i++)
+                {
+                    serialPort.WriteLine(i + "," + pixels[i].Red + "," + pixels[i].Green +","+ pixels[i].Blue + ",");
+                }
+            }
+        };
+
+        private void WallSelection_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            serialPort.Close();
+        }
     }
 }
 
@@ -2530,3 +2577,4 @@ public class Route
             return "5." + numDifficulty + "     " + nickname;
     }
 };
+

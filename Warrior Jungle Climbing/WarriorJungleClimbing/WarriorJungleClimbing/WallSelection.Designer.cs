@@ -278,7 +278,7 @@
             // 
             // btnRandomRoute
             // 
-            this.btnRandomRoute.Font = new System.Drawing.Font("Unispace", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnRandomRoute.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnRandomRoute.Location = new System.Drawing.Point(742, 869);
             this.btnRandomRoute.Name = "btnRandomRoute";
             this.btnRandomRoute.Size = new System.Drawing.Size(274, 29);
@@ -289,7 +289,7 @@
             // 
             // btnSort
             // 
-            this.btnSort.Font = new System.Drawing.Font("Unispace", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnSort.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnSort.Location = new System.Drawing.Point(1337, 222);
             this.btnSort.Name = "btnSort";
             this.btnSort.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
@@ -304,10 +304,10 @@
             this.cbActive.AutoSize = true;
             this.cbActive.Checked = true;
             this.cbActive.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cbActive.Font = new System.Drawing.Font("Unispace", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbActive.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbActive.Location = new System.Drawing.Point(1552, 227);
             this.cbActive.Name = "cbActive";
-            this.cbActive.Size = new System.Drawing.Size(178, 23);
+            this.cbActive.Size = new System.Drawing.Size(160, 24);
             this.cbActive.TabIndex = 15;
             this.cbActive.Text = "Hide Old Routes";
             this.cbActive.UseVisualStyleBackColor = true;
@@ -428,10 +428,10 @@
             // cBRouteEditActive
             // 
             this.cBRouteEditActive.AutoSize = true;
-            this.cBRouteEditActive.Font = new System.Drawing.Font("Unispace", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cBRouteEditActive.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cBRouteEditActive.Location = new System.Drawing.Point(1387, 588);
             this.cBRouteEditActive.Name = "cBRouteEditActive";
-            this.cBRouteEditActive.Size = new System.Drawing.Size(148, 23);
+            this.cBRouteEditActive.Size = new System.Drawing.Size(131, 24);
             this.cBRouteEditActive.TabIndex = 13;
             this.cBRouteEditActive.Text = "Active Route";
             this.cBRouteEditActive.UseVisualStyleBackColor = true;
@@ -599,6 +599,7 @@
             this.Text = "WarriorJungleClimbing";
             this.TransparencyKey = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.WallSelection_FormClosed);
             this.Load += new System.EventHandler(this.WallSelection_Load);
             this.ResizeEnd += new System.EventHandler(this.WallSelection_ResizeEnd);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.WallSelection_KeyDown);
